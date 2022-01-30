@@ -1,2 +1,6 @@
-# privy-router
-Privy messenger is a fully distributed, decentralized, private and secure messenger application. Privy Router acts as a broker between local Privy clients and Privy nodes (daemons).
+# Privy Router
+
+> Privy Router is responsible for taking commands from clients (Privy CLI or Privy Messenger) and deleagating them to an appropriate Privy Daemon. It is also responsible for the lifetime management of said daemons.
+
+As of right now in order to run privy daemons Docker and the privyd docker images need to be installed
+
