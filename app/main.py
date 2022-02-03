@@ -17,7 +17,9 @@ def init():
     for user in users:
         start_daemons_for_user(user)
 
-app.add_event_handler("startup", init)
+@app.on_event("startup")
+def on_startup():
+    init()
 
 @app.get("/")
 async def root():

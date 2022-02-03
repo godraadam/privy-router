@@ -27,30 +27,36 @@ def write_to_disk():
     """
     with open(settings.STORE_PATH, "wb") as f:
         pickle.dump(obj=_users, file=f)
-    pass
 
 
-def save_user(user: PrivyUser):
+def save_user(user: PrivyUser) -> PrivyUser:
     _users.append(user)
+    write_to_disk()
+    return user
+    
+def remove_user(username: str) -> PrivyUser:
+    global _users
+    user = get_user_by_name(username)
+    _users = list(filter(lambda user: user.username != username, _users))
     write_to_disk()
     return user
 
 
-def get_user_by_id(id: str):
+def get_user_by_id(id: str) -> Optional[PrivyUser]:
     result = list(filter(lambda user: user.id == id, _users))
     return result[0] if len(result) > 0 else None
 
 
-def get_user_by_name(username: str):
+def get_user_by_name(username: str) -> Optional[PrivyUser]:
     result = list(filter(lambda user: user.username == username, _users))
     return result[0] if len(result) > 0 else None
 
 
-def get_all_users():
+def get_all_users() -> List[PrivyUser]:
     return _users
 
 
-def get_current_user():
+def get_current_user() -> Optional[PrivyUser]:
     return _current_user
 
 def set_current_user(user: PrivyUser):
@@ -61,7 +67,7 @@ def reset_current_user():
     global _current_user
     _current_user = None
 
-def save_daemon(daemon: PrivyDaemon, user: PrivyUser):
+def save_daemon(daemon: PrivyDaemon, user: PrivyUser) -> PrivyDaemon:
     user.daemons.append(daemon)
     write_to_disk()
     return daemon

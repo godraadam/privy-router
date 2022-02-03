@@ -3,3 +3,6 @@ env/
 __pycache__/
 .env
 store/
+build/
+dist/
+main.spec

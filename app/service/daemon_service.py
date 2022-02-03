@@ -1,8 +1,6 @@
-from hashlib import scrypt
-import socket
+import util
 from model.daemon import PrivyDaemon
 import subprocess
-import base64
 import logging
 
 from model.user import PrivyUser
@@ -18,30 +16,13 @@ def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
     logger.info(f"Starting daemon {daemon.name} for user {user.username}")
 
     # get an available port for the daemon
-    port = default_port
-    while True:
-        try:
-            s = socket.socket()  # create a socket object
-            s.bind(("127.0.0.1", port))  # test the port
-            s.close()
-            break
-        except Exception:
-            port += 1
-
+    port = util.get_available_port()
+    
     logger.info(f"Selected port {port}")
     # TODO: move seed derivation to separate function
     if daemon.type == "origin" or daemon.type == "remote":
         # derive seed
-        seed = base64.b64encode(
-            scrypt(
-                password=user.password.encode("utf-8"),
-                salt=user.username.encode("utf-8"),
-                dklen=64,
-                n=8,
-                r=8,
-                p=1,
-            )
-        ).decode("utf-8")
+        seed = util.derive_seed(user.username, user.password)
 
         # try creating container
         status = subprocess.run(
@@ -61,7 +42,7 @@ def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
 
         # start container (regardless whether creation errored out or not)
         logger.info("Starting container...")
-        subprocess.run(f"docker start {daemon.name}", shell=True)
+        subprocess.Popen(f"docker start {daemon.name}", shell=True, stdout=subprocess.DEVNULL)
     elif daemon.type == "proxy":
 
         status = subprocess.run(
@@ -80,7 +61,7 @@ def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
 
         # start container (regardless whether creation errored out or not)
         logger.info("Starting container...")
-        subprocess.run(f"docker start {daemon.name}", shell=True)
+        subprocess.Popen(f"docker start {daemon.name}", shell=True, stdout=subprocess.DEVNULL)
     else:
         logger.error("Unrecognized daemon type")
 
@@ -89,3 +70,8 @@ def start_daemons_for_user(user: PrivyUser):
     logger.info(f"Starting daemons for {user.username}")
     for daemon in user.daemons:
         start_daemon(daemon, user)
+        
+def remove_daemons_for_user(user: PrivyUser):
+    logger.info(f"Removing daemons for {user.username}")
+    for daemon in user.daemons:
+        subprocess.Popen(f"docker container rm -f {daemon.name}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

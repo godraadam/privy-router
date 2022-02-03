@@ -1,12 +1,7 @@
-from pydantic import BaseSettings
 
-class Settings(BaseSettings):
-    STORE_PATH: str
-    APP_PORT: int
-    APP_HOST: str
-    class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
-        case_sensitive = True
-
+class Settings:
+    STORE_PATH ='./store/store.json'
+    APP_PORT = 6130
+    APP_HOST = '127.0.0.1'
+    
 settings = Settings()
