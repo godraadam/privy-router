@@ -37,7 +37,7 @@ def save_user(user: PrivyUser) -> PrivyUser:
 def remove_user(username: str) -> PrivyUser:
     global _users
     user = get_user_by_name(username)
-    _users = list(filter(lambda user: user.username != username, _users))
+    _users = list(filter(lambda u: u.username != username, _users))
     write_to_disk()
     return user
 

@@ -7,3 +7,4 @@ class PrivyDaemon(BaseModel):
     name: str
     repo: str
     proxy_pubkey: Optional[str]
+    port: Optional[int]

@@ -15,7 +15,7 @@ def derive_seed(username: str, password: str) -> str:
         )
     ).decode("utf-8")
 
-def get_available_port(start: int = 6130) -> int:
+def get_available_port(start: int = 6131) -> int:
     port = start
     while True:
         try:

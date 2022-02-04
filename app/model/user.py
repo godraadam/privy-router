@@ -7,6 +7,7 @@ from model.daemon import PrivyDaemon
 class PrivyUser(BaseModel):
     username: str # should be unique
     password: str
+    private_daemon: PrivyDaemon
     daemons: List[PrivyDaemon] = []
     
 class PrivyUserCreate(BaseModel):
