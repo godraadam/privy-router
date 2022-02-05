@@ -2,7 +2,6 @@ import logging
 import docker
 
 from model.daemon import PrivyDaemon
-import util
 
 logger = logging.getLogger(__name__)
 

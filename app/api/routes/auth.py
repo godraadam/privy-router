@@ -37,5 +37,5 @@ async def whoami():
     """
     current_user = store.get_current_user()
     if current_user is None:
-        raise HTTPException(status_code=400, detail=f"Not logged in!")
-    return current_user.username
+        raise HTTPException(status_code=404, detail=f"Not logged in!")
+    return {"username": current_user.username}
