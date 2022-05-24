@@ -2,15 +2,14 @@ from typing import List
 import uuid
 from pydantic import BaseModel
 
-from model.daemon import PrivyDaemon
+from app.model.daemon import PrivyDaemon
 
 
 class PrivyUser(BaseModel):
-    address: str
     username: str  # should be unique
     password: str
     private_daemon: PrivyDaemon
-    daemons: List[PrivyDaemon] = []
+    daemons: List[PrivyDaemon] = [] # list of daemons including proxies
 
 
 class PrivyUserCreate(BaseModel):

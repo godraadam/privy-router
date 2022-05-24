@@ -2,11 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
-from api import index
-from service.daemon_service import start_daemons_for_user
-from store import get_all_users, read_from_disk
-from config import settings
-import store
+from app.api import index
+from app.service.daemon_service import start_daemons_for_user
+from app.store import get_all_users, read_from_disk, get_current_user
+from app.config import settings
 
 app = FastAPI()
 
@@ -42,6 +41,7 @@ def on_startup():
 @app.middleware("http")
 async def check_login(req: Request, call_next):
     if req.url.path not in [
+        "/api/ping",
         "/api/auth/login",
         "/api/auth/logout",
         "/api/auth/whoami",
@@ -51,7 +51,7 @@ async def check_login(req: Request, call_next):
         "/api/account/remove",
         "/api/account/create",
     ]:
-        if store.get_current_user() is None:
+        if get_current_user() is None:
             return PlainTextResponse(status_code=403)
     response = await call_next(req)
     return response

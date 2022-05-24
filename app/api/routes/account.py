@@ -1,9 +1,8 @@
-from typing import List, Optional
+from typing import List
 from fastapi import APIRouter, HTTPException
-from app.model.daemon import PrivyDaemon
-from model.user import PrivyUser, PrivyUserCreate, PrivyUserLogin
-from service import account_service, daemon_service
-import store
+from app.model.user import PrivyUser, PrivyUserCreate, PrivyUserLogin
+from app.service import account_service
+from app import store
 
 router = APIRouter()
 
@@ -48,8 +47,8 @@ def list_local_accounts():
     return store.get_all_users()
 
 
-@router.post("/{user_address:str}/add-proxy/{proxy_pubkey}")
-def add_proxy_to_account(user_address: str, proxy_pubkey: str):
+@router.post("/{username:str}/add-proxy/{proxy_pubkey:str}")
+def add_proxy_to_account(user_name: str, proxy_pubkey: str):
     return account_service.add_proxy_to_account(
-        user_address=user_address, proxy_pubkey=proxy_pubkey
+        user_name=user_name, proxy_pubkey=proxy_pubkey
     )

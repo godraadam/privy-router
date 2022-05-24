@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from model.user import PrivyUser
+from app.model.user import PrivyUser
 
-from model.contact import PrivyContactCreate
-import store
+from app.model.contact import PrivyContactCreate
+from app import store
 import requests
 from fastapi.responses import PlainTextResponse
 

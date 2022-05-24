@@ -1,8 +1,8 @@
 from typing import List, Optional
-from model.daemon import PrivyDaemon
+from app.model.daemon import PrivyDaemon
 
-from model.user import PrivyUser
-from config import settings
+from app.model.user import PrivyUser
+from app.config import settings
 import pickle
 
 _users: List[PrivyUser] = []

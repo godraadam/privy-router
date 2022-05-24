@@ -1,7 +1,7 @@
 import logging
 import docker
 
-from model.daemon import PrivyDaemon
+from app.model.daemon import PrivyDaemon
 
 logger = logging.getLogger(__name__)
 
@@ -11,11 +11,11 @@ image_name = "godraadam/privyd:alpha"
 default_port = 6131
 
 
-def create_privyd_container(daemon: PrivyDaemon, seed: str, port: int):
+def create_privyd_container(daemon: PrivyDaemon, seed: str, port: int, username: str):
 
     environments = {
-        "origin": {"SEED": seed, "NODE_TYPE": daemon.type, "REPO": daemon.repo},
-        "remote": {"SEED": seed, "NODE_TYPE": daemon.type, "REPO": daemon.repo},
+        "origin": {"SEED": seed, "NODE_TYPE": daemon.type, "REPO": daemon.repo, "USERNAME":username},
+        "remote": {"SEED": seed, "NODE_TYPE": daemon.type, "REPO": daemon.repo, "USERNAME":username},
         "proxy": {
             "PUBKEY": daemon.proxy_pubkey,
             "NODE_TYPE": daemon.type,
