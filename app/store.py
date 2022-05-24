@@ -21,11 +21,12 @@ def read_from_disk():
     except IOError:
         _users = []
 
+
 def write_to_disk():
     """
     Persist users list (with their corresponding daemons)
     """
-    with open(settings.STORE_PATH, "wb") as f:
+    with open(settings.STORE_PATH, "wb+") as f:
         pickle.dump(obj=_users, file=f)
 
 
@@ -33,7 +34,8 @@ def save_user(user: PrivyUser) -> PrivyUser:
     _users.append(user)
     write_to_disk()
     return user
-    
+
+
 def remove_user(username: str) -> PrivyUser:
     global _users
     user = get_user_by_name(username)
@@ -52,6 +54,11 @@ def get_user_by_name(username: str) -> Optional[PrivyUser]:
     return result[0] if len(result) > 0 else None
 
 
+def get_user_by_address(address: str) -> Optional[PrivyUser]:
+    result = list(filter(lambda user: user.address == address, _users))
+    return result[0] if len(result) > 0 else None
+
+
 def get_all_users() -> List[PrivyUser]:
     return _users
 
@@ -59,13 +66,16 @@ def get_all_users() -> List[PrivyUser]:
 def get_current_user() -> Optional[PrivyUser]:
     return _current_user
 
+
 def set_current_user(user: PrivyUser):
     global _current_user
     _current_user = user
-    
+
+
 def reset_current_user():
     global _current_user
     _current_user = None
+
 
 def save_daemon(daemon: PrivyDaemon, user: PrivyUser) -> PrivyDaemon:
     user.daemons.append(daemon)

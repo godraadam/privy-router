@@ -11,7 +11,7 @@ image_name = "godraadam/privyd:alpha"
 default_port = 6131
 
 
-def create_privyd_container(daemon: PrivyDaemon, seed: str, port:int):
+def create_privyd_container(daemon: PrivyDaemon, seed: str, port: int):
 
     environments = {
         "origin": {"SEED": seed, "NODE_TYPE": daemon.type, "REPO": daemon.repo},

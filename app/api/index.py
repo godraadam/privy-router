@@ -8,6 +8,7 @@ router.include_router(auth.router, prefix="/auth")
 router.include_router(account.router, prefix="/account")
 router.include_router(contact.router, prefix="/contact")
 
+
 @router.post("/ping")
 def ping():
     return

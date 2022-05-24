@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 import uvicorn
 from api import index
@@ -10,6 +11,18 @@ import store
 app = FastAPI()
 
 app.include_router(index.router, prefix="/api")
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def init():
@@ -32,6 +45,7 @@ async def check_login(req: Request, call_next):
         "/api/auth/login",
         "/api/auth/logout",
         "/api/auth/whoami",
+        "/api/account/ls",
         # TODO: these endpoints should require user to be logged out. Also, check as substr for account/remove, not exact match
         "/api/account/add",
         "/api/account/remove",

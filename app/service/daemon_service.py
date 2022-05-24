@@ -19,7 +19,7 @@ def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
     logger.info(f"Starting daemon {daemon.name} for user {user.username}")
 
     # derive seed
-    seed = util.derive_seed(user.username, user.password)    
+    seed = util.derive_seed(user.username, user.password)
 
     # if container doesn't exist create it
     if not exists_privyd_container(daemon.name):
