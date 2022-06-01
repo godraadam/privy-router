@@ -20,12 +20,20 @@ def send_message_to(msg_object: PrivyMessage):
     else:
         return PlainTextResponse(status_code=response.status_code)
         
-@router.get("/all")
+@router.get("/all-incoming")
 def get_all_messages():
     user = store.get_current_user()
     if not user:
         return PlainTextResponse(status_code=403)
-    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/all")
+    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/all-incoming")
+    return response.json()
+    
+@router.get("/all-outgoing")
+def get_all_messages():
+    user = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
+    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/all-outgoing")
     return response.json()
     
 @router.get("/with/{alias}")
