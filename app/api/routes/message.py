@@ -4,6 +4,7 @@ import requests
 
 from app.model.message import PrivyMessage
 from app import store
+from app.config import settings
 
 router = APIRouter()
 
@@ -12,7 +13,7 @@ router = APIRouter()
 def send_message_to(msg_object: PrivyMessage):
     user = store.get_current_user()
     response = requests.post(
-        f"http://127.0.0.1:{user.private_daemon.port}/api/message/send",
+        f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/send",
         json={"to": msg_object.recipient_alias, "msg": msg_object.message},
     )
     if response.status_code == 200:
@@ -25,7 +26,7 @@ def get_all_messages():
     user = store.get_current_user()
     if not user:
         return PlainTextResponse(status_code=403)
-    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/all-incoming")
+    response = requests.get(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/all-incoming")
     return response.json()
     
 @router.get("/all-outgoing")
@@ -33,7 +34,7 @@ def get_all_messages():
     user = store.get_current_user()
     if not user:
         return PlainTextResponse(status_code=403)
-    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/all-outgoing")
+    response = requests.get(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/all-outgoing")
     return response.json()
     
 @router.get("/with/{alias}")
@@ -41,5 +42,5 @@ def get_messages_with(alias: str):
     user = store.get_current_user()
     if not user:
         return PlainTextResponse(status_code=403)
-    response = requests.get(f"http://127.0.0.1:{user.private_daemon.port}/api/message/with/{alias}")
+    response = requests.get(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/with/{alias}")
     return response.json()

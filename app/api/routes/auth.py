@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 import requests
 from app.model.user import PrivyUserLogin
 from app import store
+from app.config import settings
 
 
 router = APIRouter()
@@ -39,6 +40,6 @@ async def whoami():
     current_user = store.get_current_user()
     if current_user is None:
         raise HTTPException(status_code=404, detail=f"Not logged in!")
-    response = requests.get(f"http://127.0.0.1:{current_user.private_daemon.port}/api/account")
+    response = requests.get(f"{settings.APP_HOST}:{current_user.private_daemon.port}/api/account")
     pubkey = response.json()["pubkey"]
     return {"username": current_user.username, "pubkey": pubkey}
