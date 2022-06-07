@@ -4,7 +4,7 @@ import uuid
 from app.model.daemon import PrivyDaemon
 from app.model.user import PrivyUser, PrivyUserCreate
 from app.service import daemon_service
-from app import store
+from app import store, util
 
 
 def add_account(payload: PrivyUserCreate) -> PrivyUser:
@@ -23,6 +23,7 @@ def add_or_create_account(payload: PrivyUserCreate, type: str) -> PrivyUser:
         type=type,
         name=daemon_name,
         repo=uuid.uuid4().hex,
+        port=util.get_available_port(6131)
     )
     user = PrivyUser(
         username=payload.username,
