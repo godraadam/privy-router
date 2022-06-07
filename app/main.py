@@ -13,6 +13,7 @@ app.include_router(index.router, prefix="/api")
 
 origins = [
     "http://localhost:3000",
+    "https://privy-web.netlify.app"
 ]
 
 app.add_middleware(

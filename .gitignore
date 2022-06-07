@@ -6,3 +6,5 @@ store/
 build/
 dist/
 privyr.spec
+store.pickle
+orbitdb
