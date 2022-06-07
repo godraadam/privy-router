@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse
+from pydantic import BaseModel
 import requests
 
 from app.model.message import PrivyMessage
@@ -44,3 +45,25 @@ def get_messages_with(alias: str):
         return PlainTextResponse(status_code=403)
     response = requests.get(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/with/{alias}")
     return response.json()
+
+
+# we need hash to be request body or we will have issues with '/'-s and '+'-s in query string/path param
+class RemoveMessageBody(BaseModel):
+    hash: str
+
+@router.post("/rm")
+def remove_message(hash: RemoveMessageBody):
+    user = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
+    response = requests.delete(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/rm", json=hash.dict())
+    return PlainTextResponse(status_code=response.status_code)
+    
+@router.delete("/rm/all-with/{alias}")
+def remove_all_messages_with(alias: str):
+    user = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
+    response = requests.delete(f"{settings.APP_HOST}:{user.private_daemon.port}/api/message/rm/all-with/{alias}")
+    return PlainTextResponse(status_code=response.status_code)
+    

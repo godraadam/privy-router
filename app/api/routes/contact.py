@@ -13,6 +13,8 @@ router = APIRouter()
 @router.post("/add")
 def add_contact(payload: PrivyContactCreate):
     user: PrivyUser = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
     daemon = user.private_daemon
     response = requests.post(
         f"{settings.APP_HOST}:{daemon.port}/api/contact/add", json=payload.dict()
@@ -23,6 +25,8 @@ def add_contact(payload: PrivyContactCreate):
 @router.delete("/rm/{alias}")
 def remove_contact(alias: str):
     user: PrivyUser = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
     daemon = user.private_daemon
     response = requests.delete(f"{settings.APP_HOST}:{daemon.port}/api/contact/rm/{alias}")
     return PlainTextResponse(status_code=response.status_code)
@@ -31,6 +35,8 @@ def remove_contact(alias: str):
 @router.get("/ls")
 def get_contacts():
     user: PrivyUser = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
     daemon = user.private_daemon
     response = requests.get(f"{settings.APP_HOST}:{daemon.port}/api/contact/ls")
     return response.json()
@@ -39,6 +45,8 @@ def get_contacts():
 @router.get("/{alias}")
 def get_contact_by_alias(alias: str):
     user: PrivyUser = store.get_current_user()
+    if not user:
+        return PlainTextResponse(status_code=403)
     daemon = user.private_daemon
     response = requests.get(f"{settings.APP_HOST}:{daemon.port}/api/contact/{alias}")
     return response.json()
