@@ -1,8 +1,9 @@
 from typing import List
+
 from fastapi import APIRouter, HTTPException
-from app.model.user import PrivyUser, PrivyUserCreate, PrivyUserLogin
+from app.model.user import PrivyUser, PrivyUserCreate, PrivyUserCredentials
 from app.service import account_service
-from app import store
+from app import store, util
 
 router = APIRouter()
 
@@ -13,24 +14,23 @@ router = APIRouter()
     response_model_exclude={"password"},
     response_model_exclude_none=True,
 )
-def add_account(payload: PrivyUserLogin):
+def add_account(payload: PrivyUserCredentials):
     # check if username available locally
     if store.get_user_by_name(payload.username):
         raise HTTPException(status_code=409)
     return account_service.add_account(payload)
 
-
 @router.post(
     "/create",
-    response_model=PrivyUser,
-    response_model_exclude={"password", "daemons"},
-    response_model_exclude_none=True,
 )
 def register(payload: PrivyUserCreate):
     # check if username available locally
     if store.get_user_by_name(payload.username):
         raise HTTPException(status_code=409)
-    return account_service.create_account(payload)
+    words = util.get_mnemonic()
+    credentials = PrivyUserCredentials(username=payload.username, mnemonic=words)
+    account_service.create_account(credentials)
+    return {"mnemonic": words}
 
 
 @router.delete("/remove/{username:str}")
