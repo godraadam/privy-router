@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
     logger.info(f"Starting daemon {daemon.name} for user {user.username}")
     
-    seed = util.derive_seed(user.username, user.password)
+    seed = util.derive_seed(user.mnemonic)
 
     os.environ["PORT"] = f"{daemon.port}"
     os.environ["SEED"] = seed

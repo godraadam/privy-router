@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import requests
-from app.model.user import PrivyUserLogin
+from app.model.user import PrivyUserCredentials
 from app import store
 from app.config import settings
 
@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/login")
-async def login(payload: PrivyUserLogin):
+async def login(payload: PrivyUserCredentials):
     # set current user to this
     current_user = store.get_current_user()
     if current_user is not None:
@@ -20,7 +20,7 @@ async def login(payload: PrivyUserLogin):
     if user is None:
         raise HTTPException(status_code=404)
     # check credentials
-    if payload.password != user.password:
+    if payload.mnemonic != user.mnemonic:
         raise HTTPException(status_code=401)
     store.set_current_user(user)
     return f"Logged in as {user.username}"

@@ -2,20 +2,18 @@ from typing import Optional
 import uuid
 
 from app.model.daemon import PrivyDaemon
-from app.model.user import PrivyUser, PrivyUserCreate
+from app.model.user import PrivyUser, PrivyUserCredentials
 from app.service import daemon_service
 from app import store, util
 
-
-def add_account(payload: PrivyUserCreate) -> PrivyUser:
+def add_account(payload: PrivyUserCredentials) -> PrivyUser:
     return add_or_create_account(payload, "remote")
 
 
-def create_account(payload: PrivyUserCreate) -> PrivyUser:
+def create_account(payload: PrivyUserCredentials) -> PrivyUser:
     return add_or_create_account(payload, "origin")
 
-
-def add_or_create_account(payload: PrivyUserCreate, type: str) -> PrivyUser:
+def add_or_create_account(payload: PrivyUserCredentials, type: str) -> PrivyUser:
     daemon_name = f"{payload.username}-{type}"
     
     daemon = PrivyDaemon(
@@ -27,7 +25,7 @@ def add_or_create_account(payload: PrivyUserCreate, type: str) -> PrivyUser:
     )
     user = PrivyUser(
         username=payload.username,
-        password=payload.password,
+        mnemonic=payload.mnemonic,
         daemons=[daemon],
         private_daemon=daemon,
     )
