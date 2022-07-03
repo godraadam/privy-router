@@ -20,7 +20,7 @@ def add_or_create_account(payload: PrivyUserCredentials, type: str) -> PrivyUser
         id=uuid.uuid4().hex,
         type=type,
         name=daemon_name,
-        repo=uuid.uuid4().hex,
+        repo=f'./orbitdb/{uuid.uuid4().hex}',
         port=util.get_available_port(6131)
     )
     user = PrivyUser(
