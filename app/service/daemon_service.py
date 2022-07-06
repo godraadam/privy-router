@@ -1,5 +1,7 @@
+from asyncio.subprocess import PIPE
 import os
 import subprocess
+from time import sleep
 import requests
 from app import util
 from app.model.daemon import PrivyDaemon
@@ -18,12 +20,22 @@ def start_daemon(daemon: PrivyDaemon, user: PrivyUser):
     seed = util.derive_seed(user.mnemonic)
 
     os.environ["PORT"] = f"{daemon.port}"
-    os.environ["SEED"] = seed
-    os.environ["USERNAME"] = user.username
+    if daemon.type != 'proxy':
+        os.environ["SEED"] = seed
+        os.environ["USERNAME"] = user.username
     os.environ["REPO"] = daemon.repo
     os.environ["NODE_TYPE"] = daemon.type
+    if daemon.type == 'proxy':
+        os.environ["PUBKEY"] = daemon.proxy_pubkey
+        os.environ["TOKEN"] = daemon.token
 
-    subprocess.Popen(["node", settings.PATH_TO_DAEMON])
+    p = subprocess.Popen(["node", settings.PATH_TO_DAEMON], stdout=PIPE)
+    while True:
+        line = p.stdout.readline().decode('utf-8')
+        if 'Privy Daemon started' in line: 
+            logger.info("Daemon started successfully")
+            break
+
 
 def start_daemons_for_user(user: PrivyUser):
     logger.info(f"Starting daemons for {user.username}")

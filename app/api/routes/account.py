@@ -1,11 +1,19 @@
+import logging
 from typing import List
+from pydantic import BaseModel
+
+import requests
 
 from fastapi import APIRouter, HTTPException
 from app.model.user import PrivyUser, PrivyUserCreate, PrivyUserCredentials
+from app.model.daemon import AddProxyPayload
 from app.service import account_service
+from app.config import settings
 from app import store, util
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -33,12 +41,27 @@ def register(payload: PrivyUserCreate):
     return {"mnemonic": words}
 
 
-@router.delete("/remove/{username:str}")
-def remove_account(username: str):
-    user = store.get_user_by_name(username)
+@router.post("/remove-locally")
+def remove_account(credentials: PrivyUserCredentials):
+    user = store.get_user_by_name(credentials.username)
     if user is None:
         raise HTTPException(status_code=404)
+    if credentials.mnemonic != user.mnemonic:
+        raise HTTPException(status_code=403)
     account_service.remove_account(user)
+    store.reset_current_user()
+    return user.username
+    
+@router.post("/remove-permanently")
+def remove_account_permanent(credentials: PrivyUserCredentials):
+    user = store.get_user_by_name(credentials.username)
+    if user is None:
+        raise HTTPException(status_code=404)
+    if credentials.mnemonic != user.mnemonic:
+        raise HTTPException(status_code=403)
+    # ask the local node to nuke the database
+    account_service.remove_account(user)
+    store.reset_current_user()
     return user.username
 
 
@@ -47,8 +70,21 @@ def list_local_accounts():
     return store.get_all_users()
 
 
-@router.post("/{username:str}/add-proxy/{proxy_pubkey:str}")
-def add_proxy_to_account(user_name: str, proxy_pubkey: str):
-    return account_service.add_proxy_to_account(
-        user_name=user_name, proxy_pubkey=proxy_pubkey
-    )
+@router.post("/add-proxy/{alias:str}")
+def add_proxy_to_account(alias: str):
+    user = store.get_current_user()
+    if not user:
+        raise HTTPException(status_code=403)
+    daemon = user.private_daemon
+    logger.info(f'Sending proxy request to {daemon.name}')
+    return requests.post(f"{settings.APP_HOST}:{daemon.port}/api/contact/add-proxy/{alias}")
+
+
+
+@router.post('/node/add-proxy/')
+def add_proxy_node_side(payload: AddProxyPayload):
+    logger.info(f'Received proxy response from {payload.to}')
+    user = store.get_user_by_name(payload.to)
+    if not user:
+        raise HTTPException(status_code=404)
+    account_service.add_proxy_to_account(payload)

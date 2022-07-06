@@ -10,3 +10,7 @@ class PrivyContactCreate(BaseModel):
 
 class PrivyContact(PrivyContactCreate):
     address: str
+    
+class PrivyContactUpdate(BaseModel):
+    alias: str
+    trusted: bool
