@@ -3,6 +3,7 @@ import uuid
 
 from app.model.daemon import PrivyDaemon
 from app.model.user import PrivyUser, PrivyUserCredentials
+from app.model.daemon import AddProxyPayload
 from app.service import daemon_service
 from app import store, util
 
@@ -20,7 +21,7 @@ def add_or_create_account(payload: PrivyUserCredentials, type: str) -> PrivyUser
         id=uuid.uuid4().hex,
         type=type,
         name=daemon_name,
-        repo=uuid.uuid4().hex,
+        repo=f'./orbitdb/{uuid.uuid4().hex}',
         port=util.get_available_port(6131)
     )
     user = PrivyUser(
@@ -34,20 +35,22 @@ def add_or_create_account(payload: PrivyUserCredentials, type: str) -> PrivyUser
 
 
 def remove_account(user: PrivyUser):
-    daemon_service.remove_daemons_for_user(user)
     store.remove_user(user.username)
 
 
-def add_proxy_to_account(user_name: str, proxy_pubkey: str):
-    user: Optional[PrivyUser] = store.get_user_by_name(username=user_name)
+def add_proxy_to_account(payload: AddProxyPayload):
+    user: Optional[PrivyUser] = store.get_user_by_name(username=payload.to)
     if user is None:
         return
     proxy_daemon = PrivyDaemon(
+        id=uuid.uuid4().hex,
         type="proxy",
-        name=f"{user.username}-proxy-{proxy_pubkey[0:8]}",
-        proxy_pubkey=proxy_pubkey,
-        repo=uuid.uuid4().hex,
+        name=f"{user.username}-proxy-{payload.proxy_pubkey[0:8]}",
+        proxy_pubkey=payload.proxy_pubkey,
+        token=payload.token,
+        repo=f'./orbitdb/{uuid.uuid4().hex}',
+        port=util.get_available_port()
     )
     user.daemons.append(proxy_daemon)
-    daemon_service.start_daemon(proxy_daemon)
-    return store.save_user(user)
+    daemon_service.start_daemon(proxy_daemon, user)
+    store.write_to_disk()

@@ -10,6 +10,6 @@ router.include_router(contact.router, prefix="/contact")
 router.include_router(message.router, prefix="/message")
 
 
-@router.post("/ping")
+@router.get("/ping")
 def ping():
     return "Privy Router is running..."
